@@ -1,0 +1,73 @@
+name: Main
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: 00 18 * * *
+  watch:
+    types: [started]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+   inputs:
+        Filename:
+          description: 'Enter FIle name👁️‍🗨️ '
+          required: true
+        Token: 
+           description: 'Brah add your TOKEN👽'
+           required: true
+
+jobs:
+  Generate-Flutter-SDK:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+    - name: Maximize build space
+      uses: easimon/maximize-build-space@v4
+      with:
+          root-reserve-mb: 512
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
+          remove-haskell: 'true'
+          remove-android: 'true'
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Echo Free space
+      run: |
+          echo "Free space:"
+          df -h
+    - name: git openvino
+      run: |
+          git clone https://github.com/openvinotoolkit/openvino.git
+          cd openvino
+          mkdir inference-engine
+          cd inference-engine
+          git submodule update --init --recursive
+    - name: zip
+      run: |
+        tar -zcvf openvino.tar.gz -openvino/
+    - name: Upload 
+      run: |
+         echo "👁️‍Uploading to 3 Different servers👁️‍🗨️"
+            sleep 3
+             sudo apt install jq -y
+             curl -F "file=@${{ github.event.inputs.Filename }}" https://api.anonfiles.com/upload?token=${{ github.event.inputs.Token }} >>uploads.txt
+             
+             curl -F "file=@${{ github.event.inputs.Filename }}" https://api.letsupload.cc/upload >>uploads.txt
+           
+             curl -F "file=@${{ github.event.inputs.Filename }}" https://api.filechan.org/upload >>uploads.txt
+             git add uploads.txt
+             echo "Check Uploads.txt for links"
+             echo "LONG LIVE KINDEVILS"
+             sleep 5             
+    - name: Release Engine
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "openvino.tar.gz"
+        tag: openvino.zip
+        token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: true
