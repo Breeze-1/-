@@ -49,7 +49,7 @@ jobs:
           git submodule update --init --recursive
     - name: zip
       run: |
-        tar -zcvf openvino.tar.gz -openvino/
+        tar -zcvf openvino.tar.gz openvino/
     - name: Upload 
       run: |
          echo "👁️‍Uploading to 3 Different servers👁️‍🗨️"
